@@ -27,17 +27,17 @@ class AGI
     end
 
     def answer
-      @socket.puts "ANSWER"
+      send_command "ANSWER"
       read_response
     end
 
     def stream_file(filename, escape_digits = '0123456789#*')
-      @socket.puts %(STREAM FILE "#{filename}" "#{escape_digits}")
+      send_command %(STREAM FILE "#{filename}" "#{escape_digits}")
       read_response
     end
 
     def wait_for_digit(timeout = 3000)
-      @socket.puts "WAIT FOR DIGIT #{timeout}"
+      send_command "WAIT FOR DIGIT #{timeout}"
       response = read_response
       case response
       when 0
@@ -50,11 +50,16 @@ class AGI
     end
 
     def send_dtmf(digits)
-      @socket.puts "EXEC SendDTMF #{digits}"
+      send_command "EXEC SendDTMF #{digits}"
       read_response
     end
 
     private
+
+    def send_command(command)
+      @socket.print "#{command}\n"
+      @socket.flush
+    end
 
     def read_response
       line = @socket.gets.strip
