@@ -1,5 +1,5 @@
 class CallTester
-  attr_reader :failed
+  attr_reader :failed, :error_message
 
   def initialize(ami_username, ami_password, sip_channel)
     @agi = AGI.new
@@ -8,6 +8,7 @@ class CallTester
 
     @ami.login ami_username, ami_password
     @failed = false
+    @error_message = nil
   end
 
   def test(server_name, number)
@@ -28,7 +29,8 @@ class CallTester
       raise "Invalid response from server: #{output}"
     end
   rescue Exception => ex
-    STDERR.puts "ERROR with server #{server_name}: #{ex.message}"
+    @error_message = "ERROR with server #{server_name}: #{ex.message}"
+    STDERR.puts @error_message
     @failed = true
   end
 end
