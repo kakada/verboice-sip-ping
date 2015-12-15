@@ -17,19 +17,21 @@ class CallTester
                    data: @agi.url,
                    async: true
 
-    output = @agi.on_session do |session|
+    output = []
+
+    @agi.on_session do |session|
       session.answer
       session.send_dtmf "0"
       12.times.map do
-        session.wait_for_digit 10000
+        output.push session.wait_for_digit(10000)
       end.join
     end
 
-    if output != '0123456789#*'
+    if output.join != '0123456789#*'
       raise "Invalid response from server: #{output}"
     end
   rescue Exception => ex
-    @error_message = "ERROR with server #{server_name}: #{ex.message}"
+    @error_message = "ERROR with server #{server_name}: #{ex.message}, output: #{output.join}"
     STDERR.puts @error_message
     @failed = true
   end
